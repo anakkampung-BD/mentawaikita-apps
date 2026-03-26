@@ -16,8 +16,8 @@ android {
         applicationId = "com.obill.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 201
-        versionName = "2.0.1"
+        versionCode = 202
+        versionName = "2.0.2"
         val obillApiBase =
             (project.findProperty("obill.api.base.url") as String?)
                 ?.trim()
