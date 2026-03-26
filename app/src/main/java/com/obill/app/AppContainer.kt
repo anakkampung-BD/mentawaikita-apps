@@ -4,8 +4,8 @@ import android.content.Context
 import com.obill.app.data.local.TokenStore
 import com.obill.app.data.remote.NetworkModule
 import com.obill.app.data.repository.AppUpdateRepository
-import com.obill.app.data.repository.NoOpAppUpdateRepository
 import com.obill.app.data.repository.AuthRepository
+import com.obill.app.data.repository.RemoteAppUpdateRepository
 import com.obill.app.data.repository.SellerRepository
 
 class AppContainer(context: Context) {
@@ -35,7 +35,11 @@ class AppContainer(context: Context) {
 
     /**
      * Pengecekan release aplikasi untuk update wajib.
-     * Implementasi endpoint-nya akan diganti setelah API update diberikan.
+     * URL endpoint diambil dari BuildConfig.UPDATE_CHECK_URL.
      */
-    val appUpdateRepository: AppUpdateRepository = NoOpAppUpdateRepository()
+    val appUpdateRepository: AppUpdateRepository = RemoteAppUpdateRepository(
+        updateCheckUrl = BuildConfig.UPDATE_CHECK_URL,
+        updateCheckToken = BuildConfig.UPDATE_CHECK_TOKEN,
+        fetchText = networkModule::fetchText,
+    )
 }

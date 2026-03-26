@@ -64,7 +64,7 @@ fun MainShell(
     val context = LocalContext.current
 
     val dashVm: DashboardViewModel = viewModel(
-        factory = DashboardViewModel.factory(container.sellerRepository, context),
+        factory = DashboardViewModel.factory(container.sellerRepository, container.appUpdateRepository, context),
     )
     val histVm: HistoryViewModel = viewModel(
         factory = HistoryViewModel.factory(container.sellerRepository),

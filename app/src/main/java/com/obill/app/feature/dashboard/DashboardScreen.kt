@@ -31,7 +31,13 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -183,6 +189,25 @@ fun DashboardScreen(
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
+                                if (state.isUpToDate) {
+                                    Spacer(Modifier.height(4.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.CheckCircle,
+                                            contentDescription = null,
+                                            tint = Color(0xFF2E7D32),
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(
+                                            "Up to date",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.White,
+                                        )
+                                    }
+                                }
                             }
                         }
 
@@ -235,18 +260,21 @@ fun DashboardScreen(
                     ObillGradientButton(
                         text = "Penjualan",
                         onClick = onOpenSale,
+                        icon = Icons.Filled.AddShoppingCart,
                         modifier = Modifier.weight(1f),
                         fillWidth = false,
                     )
                     ObillGradientButton(
                         text = "Cek kuota",
                         onClick = onOpenQuota,
+                        icon = Icons.Filled.ReceiptLong,
                         modifier = Modifier.weight(1f),
                         fillWidth = false,
                     )
                     ObillGradientButton(
                         text = "Laporan",
                         onClick = onOpenReport,
+                        icon = Icons.Filled.Assessment,
                         modifier = Modifier.weight(1f),
                         fillWidth = false,
                     )

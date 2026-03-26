@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.core.content.FileProvider
 import com.obill.app.data.remote.DashboardData
 import com.obill.app.data.remote.ProfileData
+import com.obill.app.BuildConfig
+import com.obill.app.data.repository.AppUpdateRepository
 import com.obill.app.data.repository.SellerRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +27,7 @@ data class DashboardUiState(
     val data: DashboardData? = null,
     val lastSyncAtMillis: Long? = null,
     val sellerProfile: ProfileData? = null,
+    val isUpToDate: Boolean = false,
     val receiptLoading: Boolean = false,
     val receiptError: String? = null,
     val receiptUri: Uri? = null,
@@ -32,6 +35,7 @@ data class DashboardUiState(
 
 class DashboardViewModel(
     private val sellerRepository: SellerRepository,
+    private val appUpdateRepository: AppUpdateRepository,
     private val appContext: Context,
 ) : ViewModel() {
 
@@ -40,7 +44,7 @@ class DashboardViewModel(
 
     fun load() {
         viewModelScope.launch {
-            _state.update { it.copy(loading = true, error = null) }
+            _state.update { it.copy(loading = true, error = null, isUpToDate = false) }
             sellerRepository.dashboard().fold(
                 onSuccess = { d ->
                     _state.update {
@@ -61,6 +65,22 @@ class DashboardViewModel(
                             _state.update { it.copy(sellerProfile = null) }
                         },
                     )
+
+                    // Cek apakah versi apk sekarang sama dengan versi yang tersedia di repository.
+                    runCatching {
+                        val currentVersion = BuildConfig.VERSION_NAME.trim()
+                        val release = appUpdateRepository
+                            .checkLatestRelease(currentVersion)
+                            .getOrNull()
+                        _state.update {
+                            it.copy(
+                                isUpToDate = release?.forceUpdate == false &&
+                                    release.latestVersion.trim() == currentVersion,
+                            )
+                        }
+                    }.onFailure {
+                        // Jika endpoint update gagal, biarkan isUpToDate=false (tanpa mengganggu flow dashboard).
+                    }
                 },
                 onFailure = { e ->
                     _state.update {
@@ -112,10 +132,14 @@ class DashboardViewModel(
     }
 
     companion object {
-        fun factory(repo: SellerRepository, context: Context) = object : ViewModelProvider.Factory {
+        fun factory(
+            repo: SellerRepository,
+            appUpdateRepository: AppUpdateRepository,
+            context: Context,
+        ) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                DashboardViewModel(repo, context.applicationContext) as T
+                DashboardViewModel(repo, appUpdateRepository, context.applicationContext) as T
         }
     }
 }

@@ -16,15 +16,36 @@ android {
         applicationId = "com.obill.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 201
-        versionName = "2.0.1"
+        versionCode = 202
+        versionName = "2.0.2"
         val obillApiBase =
             (project.findProperty("obill.api.base.url") as String?)
                 ?.trim()
                 ?.takeIf { it.isNotEmpty() }
                 ?.let { if (it.endsWith("/")) it else "$it/" }
                 ?: "https://sln.onesky.id/"
+        val updateCheckUrl =
+            (project.findProperty("obill.update.check.url") as String?)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: ""
+        val localProps = Properties().apply {
+            val localFile = project.rootProject.file("local.properties")
+            if (localFile.exists()) {
+                localFile.inputStream().use { load(it) }
+            }
+        }
+        val updateCheckToken =
+            (project.findProperty("obill.update.check.token") as String?)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: localProps.getProperty("obill.update.check.token")
+                    ?.trim()
+                    ?.takeIf { it.isNotEmpty() }
+                ?: ""
         buildConfigField("String", "API_BASE_URL", "\"$obillApiBase\"")
+        buildConfigField("String", "UPDATE_CHECK_URL", "\"$updateCheckUrl\"")
+        buildConfigField("String", "UPDATE_CHECK_TOKEN", "\"$updateCheckToken\"")
     }
 
     buildTypes {

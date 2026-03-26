@@ -161,8 +161,14 @@ fun SplashRoute(
                     .fillMaxWidth(0.92f)
                     .height(8.dp),
             )
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "Versi ${BuildConfig.VERSION_NAME}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+                textAlign = TextAlign.Center,
+            )
             syncError?.let { err ->
-                Spacer(Modifier.height(16.dp))
                 Text(
                     text = err,
                     style = MaterialTheme.typography.bodySmall,

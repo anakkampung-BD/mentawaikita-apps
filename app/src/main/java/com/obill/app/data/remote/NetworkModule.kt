@@ -62,6 +62,35 @@ class NetworkModule(
     }
 
     /**
+     * Ambil response text dari URL absolut atau path relatif ke base URL API.
+     */
+    suspend fun fetchText(
+        urlOrPath: String,
+        headers: Map<String, String> = emptyMap(),
+    ): Result<String> = withContext(Dispatchers.IO) {
+        runCatching {
+            val target = if (urlOrPath.startsWith("http://") || urlOrPath.startsWith("https://")) {
+                urlOrPath
+            } else {
+                baseUrlNormalized + urlOrPath.removePrefix("/")
+            }
+            val reqBuilder = Request.Builder()
+                .url(target)
+                .get()
+            headers.forEach { (key, value) ->
+                if (value.isNotBlank()) reqBuilder.header(key, value)
+            }
+            val req = reqBuilder.build()
+            pingClient.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) {
+                    error("HTTP ${resp.code}: gagal cek update")
+                }
+                resp.body?.string()?.trim().orEmpty()
+            }
+        }
+    }
+
+    /**
      * Unduh file dari URL langsung ke [outputFile].
      * Client ini sudah punya interceptor Bearer token, jadi kalau receipt PDF butuh auth,
      * request tetap bisa berhasil.
