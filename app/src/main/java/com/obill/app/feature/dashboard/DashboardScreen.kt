@@ -258,14 +258,14 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     ObillGradientButton(
-                        text = "Penjualan",
+                        text = "Sale",
                         onClick = onOpenSale,
                         icon = Icons.Filled.AddShoppingCart,
                         modifier = Modifier.weight(1f),
                         fillWidth = false,
                     )
                     ObillGradientButton(
-                        text = "Cek kuota",
+                        text = "Kuota",
                         onClick = onOpenQuota,
                         icon = Icons.Filled.ReceiptLong,
                         modifier = Modifier.weight(1f),
