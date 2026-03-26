@@ -111,3 +111,30 @@ tasks.register<org.gradle.api.tasks.Exec>("installDebugAndRun") {
         )
     }
 }
+
+tasks.register("publishReleaseApkToRepo") {
+    group = "distribution"
+    description = "Build release APK dan salin ke folder updates untuk dipush"
+    dependsOn("assembleRelease")
+
+    doLast {
+        val outputsDir = layout.buildDirectory.dir("outputs/apk/release").get().asFile
+        val apk = outputsDir
+            .listFiles()
+            ?.firstOrNull { it.isFile && it.name.endsWith(".apk") }
+            ?: error("APK release tidak ditemukan di ${outputsDir.absolutePath}")
+
+        val updatesDir = rootProject.layout.projectDirectory.dir("updates").asFile
+        if (!updatesDir.exists()) updatesDir.mkdirs()
+
+        val targetApk = updatesDir.resolve("app-release.apk")
+        apk.copyTo(targetApk, overwrite = true)
+
+        val versionText = android.defaultConfig.versionName ?: "unknown"
+        updatesDir.resolve("latest-version.txt").writeText(versionText)
+        updatesDir.resolve("latest-apk-name.txt").writeText(targetApk.name)
+
+        println("Release APK dipublish ke: ${targetApk.absolutePath}")
+        println("Versi: $versionText")
+    }
+}

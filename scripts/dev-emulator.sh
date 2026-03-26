@@ -28,7 +28,21 @@ if [[ -z "${JAVA_HOME:-}" ]]; then
   done
 fi
 
-export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+# Prioritas SDK:
+# 1) sdk.dir dari local.properties (paling akurat per project)
+# 2) ANDROID_HOME dari environment
+# 3) fallback default macOS
+if [[ -f "$ROOT/local.properties" ]]; then
+  SDK_FROM_LOCAL="$(awk -F= '/^sdk.dir=/{print $2}' "$ROOT/local.properties" | tr -d '\r' || true)"
+else
+  SDK_FROM_LOCAL=""
+fi
+
+if [[ -n "${SDK_FROM_LOCAL:-}" && -d "${SDK_FROM_LOCAL:-}" ]]; then
+  export ANDROID_HOME="$SDK_FROM_LOCAL"
+else
+  export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+fi
 ADB="$ANDROID_HOME/platform-tools/adb"
 
 if [[ ! -x "$ROOT/gradlew" ]]; then
@@ -52,4 +66,4 @@ echo "JAVA_HOME=${JAVA_HOME:-<default>}"
 echo "ANDROID_HOME=$ANDROID_HOME"
 echo ""
 
-exec "$ROOT/gradlew" :app:installDebugAndRun --continuous
+exec "$ROOT/scripts/gradle.sh" :app:installDebugAndRun --continuous
