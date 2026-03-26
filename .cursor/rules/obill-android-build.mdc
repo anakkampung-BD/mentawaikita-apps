@@ -1,0 +1,16 @@
+---
+description: Setelah mengubah kode Android, build dan jalankan ke emulator/perangkat
+alwaysApply: true
+---
+
+# Build & run OBill
+
+Setelah **mengubah** kode di proyek ini (khususnya `app/`, resource, atau Gradle):
+
+1. **Satu kali** (setelah selesai mengedit): jika emulator/perangkat terhubung (`adb devices` menunjukkan `device`), jalankan dari root repo:
+   `./gradlew :app:installDebugAndRun`
+2. **Mode otomatis tiap simpan** (untuk pengguna): jalankan di terminal dan biarkan menyala:
+   `./scripts/dev-emulator.sh`
+   Gradle `--continuous` akan rebuild, install, dan membuka aplikasi lagi setiap ada perubahan sumber.
+
+Jika tidak ada perangkat, tahap install gagal — minta pengguna menyalakan emulator atau USB debugging. Jika hanya mengubah dokumentasi atau file di luar build, tidak perlu menjalankan perintah ini.

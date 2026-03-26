@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>PayApp - Finance, Banking, Wallet, Crypto Mobile PWA</title>
+<link rel="stylesheet" type="text/css" href="styles/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="fonts/bootstrap-icons.css">
+<link rel="stylesheet" type="text/css" href="styles/style.css">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="_manifest.json">
+<meta id="theme-check" name="theme-color" content="#FFFFFF">
+<link rel="apple-touch-icon" sizes="180x180" href="app/icons/icon-192x192.png"></head>
+
+<body class="theme-light">
+
+<div id="preloader"><div class="spinner-border color-highlight" role="status"></div></div>
+
+<!-- Page Wrapper - display:none is suggested for CLS page performance improvements-->
+<div id="page" style="display:none">
+
+	<!-- Footer Bar -->
+	<nav id="footer-bar" class="footer-bar-1 footer-bar-detached">
+		<a href="page-wallet.html"><i class="bi bi-wallet2"></i><span>Wallet</span></a>
+		<a href="page-activity.html"><i class="bi bi-graph-up"></i><span>Activity</span></a>
+		<a href="index-waves.html" class="circle-nav-2"><i class="bi bi-house-fill"></i><span>Home</span></a>
+		<a href="page-payments.html"><i class="bi bi-receipt"></i><span>Payments</span></a>
+		<a href="#" data-bs-toggle="offcanvas" data-bs-target="#menu-sidebar"><i class="bi bi-three-dots"></i><span>More</span></a>
+	</nav>
+
+	<!-- Page Content - Only Page Elements Here-->
+	<div class="page-content footer-clear">
+
+		<!-- Page Title-->
+		<div class="pt-3">
+			<div class="page-title d-flex">
+				<div class="align-self-center me-auto">
+					<p class="color-highlight header-date"></p>
+					<h1>Your Report</h1>
+				</div>
+				<div class="align-self-center ms-auto">
+					<a href="#"
+					data-bs-toggle="offcanvas"
+					data-bs-target="#menu-notifications"
+					class="icon gradient-blue color-white shadow-bg shadow-bg-xs rounded-m">
+						<i class="bi bi-bell-fill font-17"></i>
+						<em class="badge bg-red-dark color-white scale-box">3</em>
+					</a>
+					<a href="#"
+					data-bs-toggle="dropdown"
+					class="icon gradient-blue shadow-bg shadow-bg-s rounded-m">
+						<img src="images/pictures/25s.jpg" width="45" class="rounded-m" alt="img">
+					</a>
+					<!-- Page Title Dropdown Menu-->
+					<div class="dropdown-menu">
+						<div class="card card-style shadow-m mt-1 me-1">
+							<div class="list-group list-custom list-group-s list-group-flush rounded-xs px-3 py-1">
+								<a href="#" class="list-group-item">
+									<i class="has-bg gradient-green shadow-bg shadow-bg-xs color-white rounded-xs bi bi-credit-card"></i>
+									<strong class="font-13">Cards</strong>
+								</a>
+								<a href="#" class="list-group-item">
+									<i class="has-bg gradient-blue shadow-bg shadow-bg-xs color-white rounded-xs bi bi-gear-fill"></i>
+									<strong class="font-13">Account</strong>
+								</a>
+								<a href="#" class="list-group-item">
+									<i class="has-bg gradient-yellow shadow-bg shadow-bg-xs color-white rounded-xs bi bi-arrow-left-right"></i>
+									<strong class="font-13">Actions</strong>
+								</a>
+								<a href="#" class="list-group-item">
+									<i class="has-bg gradient-red shadow-bg shadow-bg-xs color-white rounded-xs bi bi-power"></i>
+									<strong class="font-13">Log Out</strong>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="card card-style p-0 pt-3">
+			<div class="d-flex px-3">
+				<div class="align-self-center">
+					<h6 class="opacity-30 mb-n1">Breakdown</h6>
+					<h1 class="mb-2 font-30"><span class="copyright-year">. . .</span></h1>
+				</div>
+				<div class="ms-auto align-self-center">
+					<span class="icon icon-s rounded-s gradient-red shadow-bg shadow-bg-xs"><i class="bi bi-bar-chart font-20 color-white"></i></span>
+				</div>
+			</div>
+			<div class="divider my-2"></div>
+			<div class="d-flex px-3 pt-2 mb-n4">
+				<div class="me-auto">
+					<i class="bi bi-circle-fill color-green-dark"></i>
+					<span>Income</span>
+				</div>
+				<div class="mx-auto">
+					<i class="bi bi-circle-fill color-blue-dark"></i>
+					<span>Savings</span>
+				</div>
+				<div class="ms-auto">
+					<i class="bi bi-circle-fill color-red-dark"></i>
+					<span>Expenses</span>
+				</div>
+			</div>
+			<div id="chart-financial" class="chart mx-n4 mb-n2"><!-- plugins/apex/apex-call.js --></div>
+			<div class="mb-n4"></div>
+		</div>
+		
+		<div class="card overflow-visible card-style">
+			<div class="content mb-0">
+				<h6 class="opacity-30 mb-n1">Entertainment</h6>
+				<h1 class="mb-2">Breakdown</h1>
+				<p class="mb-3">
+					The breakdown of your income, expenses and savings. The values below are copied from the above chart which makes them more digestible on Mobile screens.
+				</p>
+				<div class="divider mt-2 mb-1"></div>
+				<div class="table-responsive">
+					<table class="table color-theme mb-2">
+						<thead>
+							<tr>
+								<th scope="col" class="border-theme">Month</th>
+								<th scope="col" class="border-theme color-green-dark">Income</th>
+								<th scope="col" class="border-theme color-blue-dark">Saving</th>
+								<th scope="col" class="border-theme color-red-dark">Expenses</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="border-theme font-700">January</td>
+								<td class="border-theme color-green-dark">$1.800</td>
+								<td class="border-theme color-blue-dark">$1.300</td>
+								<td class="border-theme color-red-dark">$1.500</td>
+							</tr>
+							<tr>
+								<td class="border-theme font-700">February</td>
+								<td class="border-theme color-green-dark">$850</td>
+								<td class="border-theme color-blue-dark">$300</td>
+								<td class="border-theme color-red-dark">$550</td>
+							</tr>
+							<tr>
+								<td class="border-theme font-700">March</td>
+								<td class="border-theme color-green-dark">$900</td>
+								<td class="border-theme color-blue-dark">$300</td>
+								<td class="border-theme color-red-dark">$600</td>
+							</tr>
+							<tr>
+								<td class="border-theme font-700">April</td>
+								<td class="border-theme color-green-dark">$2.000</td>
+								<td class="border-theme color-blue-dark">$700</td>
+								<td class="border-theme color-red-dark">$2.500</td>
+							</tr>
+							<tr>
+								<td class="border-theme font-700">May</td>
+								<td class="border-theme color-green-dark">$1.000</td>
+								<td class="border-theme color-blue-dark">$300</td>
+								<td class="border-theme color-red-dark">$700</td>
+							</tr>
+							<tr>
+								<td class="font-700 border-0">June</td>
+								<td class="border-0 color-green-dark">$2.500</td>
+								<td class="border-0 color-blue-dark">$1.300</td>
+								<td class="border-0 color-red-dark">$1.650</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		
+		<div class="content mt-n2">
+			<div class="row mb-0">
+				<div class="col-6">
+					<a href="#" class="btn btn-m rounded-sm gradient-blue shadow-bg shadow-bg-xs btn-full">Export PDF</a>
+				</div>
+				<div class="col-6">
+					<a href="#" class="btn btn-m rounded-sm gradient-red shadow-bg shadow-bg-xs btn-full">Contact Support</a>
+				</div>
+			</div>
+		</div>
+
+    </div>
+    <!-- End of Page Content-->
+
+    <!-- Off Canvas and Menu Elements-->
+    <!-- Always outside the Page Content-->
+
+    
+    <!-- Main Sidebar Menu -->
+	<div id="menu-sidebar" data-menu-active="nav-welcome" data-menu-load="menu-sidebar.html"
+		class="offcanvas offcanvas-start offcanvas-detached rounded-m">
+	</div>
+	
+	<!-- Highlights Menu -->
+	<div id="menu-highlights"
+		data-menu-load="menu-highlights.html"
+		class="offcanvas offcanvas-bottom offcanvas-detached rounded-m">
+	</div>
+	
+	<!-- Notifications Bell -->
+	<div id="menu-notifications" data-menu-load="menu-notifications.html"
+		class="offcanvas offcanvas-top offcanvas-detached rounded-m">
+	</div>
+
+
+</div>
+<!-- End of Page ID-->
+
+<script src="scripts/bootstrap.min.js"></script>
+<script src="scripts/custom.js"></script>
+</body>

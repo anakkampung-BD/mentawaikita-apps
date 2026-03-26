@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive icon: area aman berbentuk lingkaran ~66dp di kanvas 108dp.
+  Bitmap + gravity=center TIDAK mengecilkan gambar → terpotong seperti "zoom".
+  Pakai layer-list + width/height + gravity=fill agar bitmap diskalakan utuh ke dalam kotak
+  yang muat di lingkaran (~66/√2 ≈ 47dp untuk logo persegi).
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="40dp"
+        android:height="40dp"
+        android:gravity="center">
+        <bitmap
+            android:gravity="fill"
+            android:src="@drawable/ic_launcher_foreground_src" />
+    </item>
+</layer-list>
