@@ -2,6 +2,7 @@ package com.obill.app.feature.dashboard
 
 import android.content.Intent
 import android.content.ActivityNotFoundException
+import android.content.ClipData
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -84,12 +85,25 @@ fun DashboardScreen(
 
     LaunchedEffect(state.receiptUri) {
         val uri = state.receiptUri ?: return@LaunchedEffect
-        val intent = Intent(Intent.ACTION_VIEW).apply {
+        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/pdf")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            clipData = ClipData.newRawUri("receipt_pdf", uri)
         }
         try {
-            ContextCompat.startActivity(context, Intent.createChooser(intent, "Buka bukti transaksi PDF"), null)
+            val resolveInfos = context.packageManager.queryIntentActivities(viewIntent, 0)
+            resolveInfos.forEach { info ->
+                context.grantUriPermission(
+                    info.activityInfo.packageName,
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            }
+            ContextCompat.startActivity(
+                context,
+                Intent.createChooser(viewIntent, "Buka bukti transaksi PDF"),
+                null,
+            )
             viewModel.clearReceiptUri()
         } catch (_: ActivityNotFoundException) {
             viewModel.setReceiptError("Tidak ada aplikasi pembaca PDF di perangkat ini.")
@@ -119,18 +133,6 @@ fun DashboardScreen(
     val lastCheckOneLine = remember(state.lastSyncAtMillis) {
         val millis = state.lastSyncAtMillis ?: return@remember "-"
         SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale("id", "ID")).format(Date(millis))
-    }
-
-    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(1000)
-            nowMillis = System.currentTimeMillis()
-        }
-    }
-    val nowText = remember(nowMillis) {
-        val sdf = SimpleDateFormat("EEEE, dd MMM yyyy HH:mm:ss", Locale("id", "ID"))
-        sdf.format(Date(nowMillis))
     }
 
     val profileText = state.sellerProfile?.name?.takeIf { it.isNotBlank() }
@@ -235,7 +237,7 @@ fun DashboardScreen(
                 ) {
                     InfoTile(
                         title = "Waktu",
-                        value = nowText,
+                        value = rememberCurrentTimeText(),
                         accent = OrangeBrand,
                         modifier = Modifier.weight(1f),
                     )
@@ -474,6 +476,21 @@ private fun UserAvatar(displayName: String) {
             style = MaterialTheme.typography.headlineSmall,
             color = Color.White,
         )
+    }
+}
+
+@Composable
+private fun rememberCurrentTimeText(): String {
+    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000)
+            nowMillis = System.currentTimeMillis()
+        }
+    }
+    return remember(nowMillis) {
+        val sdf = SimpleDateFormat("dd MMM yyyy HH:mm:ss", Locale("id", "ID"))
+        sdf.format(Date(nowMillis))
     }
 }
 

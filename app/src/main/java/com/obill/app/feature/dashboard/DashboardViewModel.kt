@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -104,6 +105,15 @@ class DashboardViewModel(
 
             sellerRepository.receiptPdfToFile(saleId, file).fold(
                 onSuccess = { f ->
+                    if (!isProbablyPdf(f)) {
+                        _state.update {
+                            it.copy(
+                                receiptLoading = false,
+                                receiptError = "File bukti transaksi tidak valid (bukan PDF).",
+                            )
+                        }
+                        return@fold
+                    }
                     val uri = FileProvider.getUriForFile(
                         appContext,
                         "${appContext.packageName}.fileprovider",
@@ -129,6 +139,22 @@ class DashboardViewModel(
 
     fun setReceiptError(message: String) {
         _state.update { it.copy(receiptError = message, receiptLoading = false) }
+    }
+
+    private fun isProbablyPdf(file: File): Boolean {
+        if (!file.exists() || file.length() < 5L) return false
+        return runCatching {
+            FileInputStream(file).use { input ->
+                val header = ByteArray(5)
+                val read = input.read(header)
+                read == 5 &&
+                    header[0] == '%'.code.toByte() &&
+                    header[1] == 'P'.code.toByte() &&
+                    header[2] == 'D'.code.toByte() &&
+                    header[3] == 'F'.code.toByte() &&
+                    header[4] == '-'.code.toByte()
+            }
+        }.getOrDefault(false)
     }
 
     companion object {
