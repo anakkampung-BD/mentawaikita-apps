@@ -46,7 +46,7 @@ class RemoteAppUpdateRepository(
                 return@mapCatching AppReleaseInfo(
                     latestVersion = latest,
                     forceUpdate = false,
-                    updateUrl = parsed.updateUrl,
+                    updateUrl = parsed.updateUrl ?: fallbackRepoApkUrl(),
                 )
             }
 
@@ -57,7 +57,7 @@ class RemoteAppUpdateRepository(
                 AppReleaseInfo(
                     latestVersion = latest,
                     forceUpdate = parsed.forceUpdate,
-                    updateUrl = parsed.updateUrl,
+                    updateUrl = parsed.updateUrl ?: fallbackRepoApkUrl(),
                 )
             }
         }
@@ -98,5 +98,27 @@ class RemoteAppUpdateRepository(
 
     private fun JsonObject.bool(key: String): Boolean? =
         this[key]?.jsonPrimitive?.booleanOrNull
+
+    /**
+     * Fallback URL download APK dari repository GitLab jika response update tidak mengirim update_url.
+     * Contoh transform:
+     * .../updates%2Flatest-version.txt/raw?ref=main -> .../updates%2Fapp-release.apk/raw?ref=main
+     */
+    private fun fallbackRepoApkUrl(): String? {
+        val source = updateCheckUrl.trim()
+        if (source.isBlank()) return null
+
+        val replaced = source.replace("updates%2Flatest-version.txt", "updates%2Fapp-release.apk")
+        if (replaced == source) return null
+
+        return appendPrivateTokenQuery(replaced, updateCheckToken)
+    }
+
+    private fun appendPrivateTokenQuery(url: String, token: String): String {
+        if (token.isBlank()) return url
+        if (url.contains("private_token=")) return url
+        val separator = if (url.contains("?")) "&" else "?"
+        return "$url${separator}private_token=$token"
+    }
 }
 
