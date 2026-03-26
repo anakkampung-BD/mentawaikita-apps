@@ -1,31 +1,39 @@
 package com.obill.app.feature.history
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.obill.app.ui.components.ObillCard
 import com.obill.app.ui.formatRupiahPlain
 
@@ -34,8 +42,9 @@ fun HistoryScreen(
     viewModel: HistoryViewModel,
     onOpenReceipt: (Int) -> Unit,
 ) {
+    @Suppress("UNUSED_VARIABLE")
+    val _unusedOnOpenReceipt = onOpenReceipt
     val state by viewModel.state.collectAsState()
-    var removeError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.load(1)
@@ -48,10 +57,6 @@ fun HistoryScreen(
     ) {
         Text("Riwayat transaksi", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
-        removeError?.let {
-            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            Spacer(Modifier.height(4.dp))
-        }
         when {
             state.loading -> {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -67,7 +72,11 @@ fun HistoryScreen(
                         val q = state.quotaById[row.id]
                         val price = row.sellingPrice?.toDoubleOrNull() ?: 0.0
                         val priceLabel = formatRupiahPlain(price).replace("Rp ", "Rp. ")
-                        ObillCard {
+                        ObillCard(
+                            modifier = Modifier.clickable {
+                                row.id.toIntOrNull()?.let { viewModel.openReceiptPreview(it) }
+                            },
+                        ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -124,28 +133,6 @@ fun HistoryScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                 )
                             }
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.padding(top = 8.dp),
-                            ) {
-                                Button(
-                                    onClick = {
-                                        row.id.toIntOrNull()?.let { onOpenReceipt(it) }
-                                    },
-                                ) {
-                                    Text("Struk")
-                                }
-                                Button(
-                                    onClick = {
-                                        removeError = null
-                                        viewModel.removeExpired(row.id.toIntOrNull() ?: 0) { err ->
-                                            removeError = err
-                                        }
-                                    },
-                                ) {
-                                    Text("Hapus expired")
-                                }
-                            }
                         }
                     }
                 }
@@ -171,6 +158,46 @@ fun HistoryScreen(
                             enabled = p.page < p.totalPages,
                         ) {
                             Text("Berikutnya")
+                        }
+                    }
+                }
+            }
+        }
+
+        if (state.receiptPreviewLoading || state.receiptPreviewError != null || state.receiptPreviewText != null) {
+            Dialog(onDismissRequest = { viewModel.closeReceiptPreview() }) {
+                Surface(
+                    color = Color(0xFFEDEDED),
+                    shape = MaterialTheme.shapes.medium,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .heightIn(max = 560.dp)
+                            .padding(16.dp),
+                    ) {
+                        when {
+                            state.receiptPreviewLoading -> CircularProgressIndicator()
+                            state.receiptPreviewError != null -> Text(
+                                state.receiptPreviewError.orEmpty(),
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                            else -> Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .heightIn(max = 528.dp)
+                                    .verticalScroll(rememberScrollState()),
+                            ) {
+                                Text(
+                                    state.receiptPreviewText.orEmpty(),
+                                    fontFamily = FontFamily.Monospace,
+                                    fontSize = 14.sp,
+                                    lineHeight = 20.sp,
+                                    color = Color(0xFF111111),
+                                )
+                            }
                         }
                     }
                 }
