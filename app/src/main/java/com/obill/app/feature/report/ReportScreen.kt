@@ -1,6 +1,7 @@
 package com.obill.app.feature.report
 
 import android.content.Intent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -26,6 +33,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -36,7 +45,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ReportScreen(viewModel: ReportViewModel) {
     val state by viewModel.state.collectAsState()
@@ -50,6 +59,22 @@ fun ReportScreen(viewModel: ReportViewModel) {
     val fmt = remember { SimpleDateFormat("yyyy-MM-dd", Locale.US) }
     val dateFromStr = remember(fromMillis) { fmt.format(Date(fromMillis)) }
     val dateToStr = remember(toMillis) { fmt.format(Date(toMillis)) }
+    var refreshing by remember { mutableStateOf(false) }
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = refreshing,
+        onRefresh = {
+            if (refreshing || state.loading || showFrom || showTo) return@rememberPullRefreshState
+            refreshing = true
+            viewModel.load(dateFromStr, dateToStr)
+        },
+    )
+    LaunchedEffect(state.loading, refreshing) {
+        if (refreshing && !state.loading) {
+            // Debounce kecil agar 1 gesture swipe tidak memicu beberapa refresh beruntun.
+            delay(250)
+            refreshing = false
+        }
+    }
 
     LaunchedEffect(state.pdfUri) {
         val uri = state.pdfUri ?: return@LaunchedEffect
@@ -61,11 +86,20 @@ fun ReportScreen(viewModel: ReportViewModel) {
         viewModel.clearPdfUri()
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .pullRefresh(
+                state = pullRefreshState,
+                enabled = !showFrom && !showTo && !state.loading,
+            ),
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+        ) {
         Text("Laporan penjualan", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -117,6 +151,12 @@ fun ReportScreen(viewModel: ReportViewModel) {
                 )
             }
         }
+        }
+        PullRefreshIndicator(
+            refreshing = refreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
     }
 
     if (showFrom) {

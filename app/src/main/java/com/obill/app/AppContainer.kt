@@ -22,7 +22,8 @@ class AppContainer(context: Context) {
     val sellerRepository = SellerRepository(
         networkModule.api,
         networkModule.json,
-        downloadUrlToFile = networkModule::downloadUrlToFile,
+        downloadReceiptPdfFromReceiptUrl = networkModule::downloadReceiptPdfFromReceiptUrl,
+        downloadReceiptPdfBySaleId = networkModule::downloadReceiptPdfBySaleId,
     )
     val authRepository = AuthRepository(
         api = networkModule.api,

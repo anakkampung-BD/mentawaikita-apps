@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -46,6 +50,7 @@ import com.obill.app.ui.components.ObillGradientButton
 
 private const val WIZ_STEPS = 4
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SaleScreen(viewModel: SaleViewModel) {
     val state by viewModel.state.collectAsState()
@@ -61,16 +66,33 @@ fun SaleScreen(viewModel: SaleViewModel) {
         viewModel.load()
     }
 
+    var refreshing by remember { mutableStateOf(false) }
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = refreshing,
+        onRefresh = {
+            refreshing = true
+            viewModel.load()
+        },
+    )
+    LaunchedEffect(state.loading) {
+        if (!state.loading) refreshing = false
+    }
+
     fun goTo(newStep: Int) {
         step = newStep.coerceIn(1, WIZ_STEPS)
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .pullRefresh(pullRefreshState),
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+        ) {
         Text(
             text = "Langkah $step dari $WIZ_STEPS",
             style = MaterialTheme.typography.bodySmall,
@@ -338,6 +360,12 @@ fun SaleScreen(viewModel: SaleViewModel) {
                 }
             }
         }
+        }
+        PullRefreshIndicator(
+            refreshing = refreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
     }
 }
 

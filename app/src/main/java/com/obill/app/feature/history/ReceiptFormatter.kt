@@ -12,10 +12,8 @@ fun formatReceiptDotMatrix37(raw: String, saleId: Int): String {
     val parsed = parseKeyValues(normalized)
     if (parsed.isEmpty()) return wrapRaw(normalized, width)
 
-    val note = parsed["no nota"]
-        ?: parsed["invoice"]
-        ?: "$saleId/TRX/${Calendar.getInstance().get(Calendar.YEAR)}"
     val tanggal = parsed["tanggal"] ?: "-"
+    val note = buildInvoiceNo(saleId, tanggal)
     val sales = parsed["sales"] ?: "-"
     val paket = parsed["paket"] ?: parsed["nama paket"] ?: "-"
     val total = parsed["total"]?.replace("Rp ", "Rp. ") ?: "-"
@@ -98,6 +96,38 @@ private fun centerText(text: String, width: Int): String {
     if (text.length >= width) return text.take(width)
     val leftPad = (width - text.length) / 2
     return " ".repeat(leftPad) + text
+}
+
+private fun buildInvoiceNo(saleId: Int, tanggal: String): String {
+    val parsedDate = parseAnyDate(tanggal)
+    val month = if (parsedDate != null) {
+        SimpleDateFormat("MM", Locale.US).format(parsedDate)
+    } else {
+        SimpleDateFormat("MM", Locale.US).format(Calendar.getInstance().time)
+    }
+    val year = if (parsedDate != null) {
+        SimpleDateFormat("yyyy", Locale.US).format(parsedDate)
+    } else {
+        SimpleDateFormat("yyyy", Locale.US).format(Calendar.getInstance().time)
+    }
+    return "$saleId/TRX/$month/$year"
+}
+
+private fun parseAnyDate(raw: String): java.util.Date? {
+    val value = raw.trim()
+    if (value.isEmpty()) return null
+    val patterns = listOf(
+        "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-dd HH:mm",
+        "dd MMM yyyy HH:mm:ss",
+        "dd MMM yyyy HH:mm",
+    )
+    val locales = listOf(Locale.ENGLISH, Locale("id", "ID"))
+    return patterns.asSequence().flatMap { pattern ->
+        locales.asSequence().mapNotNull { locale ->
+            runCatching { SimpleDateFormat(pattern, locale).parse(value) }.getOrNull()
+        }
+    }.firstOrNull()
 }
 
 private fun calculateExpiredFromPackage(tanggal: String, paket: String): String? {

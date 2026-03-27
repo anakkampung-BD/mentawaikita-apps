@@ -12,9 +12,11 @@ import com.obill.app.data.remote.QuotaInfoDto
 import com.obill.app.data.remote.ReceiptData
 import com.obill.app.data.remote.RemoveExpiredRequest
 import com.obill.app.data.remote.ResendReceiptRequest
+import com.obill.app.data.remote.SaldoTopupHistoryEnvelope
 import com.obill.app.data.remote.SellerApi
 import com.obill.app.data.remote.SubmitSaleRequest
 import com.obill.app.data.remote.SubmitSaleResponse
+import com.obill.app.data.remote.isPdfContent
 import kotlinx.serialization.json.Json
 import okhttp3.ResponseBody
 import java.io.File
@@ -23,7 +25,10 @@ import java.io.FileOutputStream
 class SellerRepository(
     private val api: SellerApi,
     private val json: Json,
-    private val downloadUrlToFile: suspend (String, File) -> Result<File>,
+    /** Field `receipt_url` dari GET api/seller/receipt — sumber utama unduh PDF (API_SELLER.md). */
+    private val downloadReceiptPdfFromReceiptUrl: suspend (String, File) -> Result<File>,
+    /** Hanya dipakai jika unduh dari receipt_url tidak menghasilkan file PDF valid. */
+    private val downloadReceiptPdfBySaleId: suspend (Int, File) -> Result<File>,
 ) {
 
     suspend fun dashboard(): Result<DashboardData> = runCatching {
@@ -78,8 +83,20 @@ class SellerRepository(
         val res = api.receipt(id)
         if (!res.success) error(res.message ?: "Struk tidak ditemukan")
         val data = res.data ?: error("Data kosong")
-        val url = data.receiptUrl ?: error("receipt_url tidak tersedia")
-        downloadUrlToFile(url, outputFile).getOrThrow()
+        val url = data.receiptUrl?.trim().orEmpty()
+        if (url.isEmpty()) {
+            error("receipt_url tidak tersedia dari API. Pastikan GET api/seller/receipt mengembalikan receipt_url.")
+        }
+
+        // Dokumentasi: PDF diunduh dari URL pada field receipt_url (bukan endpoint lain).
+        val fromReceiptUrl = downloadReceiptPdfFromReceiptUrl(url, outputFile)
+        if (fromReceiptUrl.isSuccess && outputFile.isPdfContent()) {
+            return@runCatching fromReceiptUrl.getOrThrow()
+        }
+        outputFile.delete()
+
+        // Cadangan jika respons bukan PDF (mis. HTML) — tetap coba endpoint API dengan Bearer.
+        downloadReceiptPdfBySaleId(id, outputFile).getOrThrow()
     }
 
     suspend fun resendReceipt(id: Int): Result<ApiMessageResponse> = runCatching {
@@ -100,9 +117,7 @@ class SellerRepository(
         outputFile: File,
     ): Result<File> = runCatching {
         val body: ResponseBody = api.laporanPdf(dateDari, dateSampai)
-        FileOutputStream(outputFile).use { out ->
-            body.byteStream().use { input -> input.copyTo(out) }
-        }
+        saveResponseBodyToFile(body, outputFile)
         outputFile
     }
 
@@ -122,5 +137,25 @@ class SellerRepository(
         val res = api.profile()
         if (!res.success) error(res.message ?: "Gagal memuat profil")
         res.data ?: error("Data kosong")
+    }
+
+    /**
+     * Riwayat top-up saldo (default bulan & tahun berjalan). [userId] opsional; jika null, server pakai id dari token.
+     */
+    suspend fun saldoTopupHistory(
+        userId: Int? = null,
+        month: Int? = null,
+        year: Int? = null,
+    ): Result<SaldoTopupHistoryEnvelope> = runCatching {
+        val res = api.saldoTopupHistory(userId = userId, month = month, year = year)
+        if (!res.success) error(res.message ?: "Gagal memuat riwayat top-up saldo")
+        res
+    }
+
+    private fun saveResponseBodyToFile(body: ResponseBody, outputFile: File) {
+        outputFile.parentFile?.mkdirs()
+        FileOutputStream(outputFile).use { out ->
+            body.byteStream().use { input -> input.copyTo(out) }
+        }
     }
 }

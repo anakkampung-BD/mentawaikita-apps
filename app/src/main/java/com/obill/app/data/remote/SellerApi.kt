@@ -60,4 +60,11 @@ interface SellerApi {
 
     @GET("api/seller/profile")
     suspend fun profile(): ProfileEnvelope
+
+    @GET("api/seller/saldo_topup_history")
+    suspend fun saldoTopupHistory(
+        @Query("user_id") userId: Int? = null,
+        @Query("month") month: Int? = null,
+        @Query("year") year: Int? = null,
+    ): SaldoTopupHistoryEnvelope
 }

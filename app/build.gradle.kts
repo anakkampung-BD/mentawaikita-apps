@@ -8,6 +8,57 @@ plugins {
 import java.io.File
 import java.util.Properties
 
+fun resolveProp(
+    key: String,
+    project: org.gradle.api.Project,
+    localProps: Properties,
+    envKey: String? = null,
+): String =
+    (project.findProperty(key) as String?)
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?: localProps.getProperty(key)
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+        ?: envKey?.let { System.getenv(it)?.trim()?.takeIf { v -> v.isNotEmpty() } }
+        ?: ""
+
+val localPropsForSigning = Properties().apply {
+    val localFile = project.rootProject.file("local.properties")
+    if (localFile.exists()) {
+        localFile.inputStream().use { load(it) }
+    }
+}
+val playstoreStoreFile = resolveProp(
+    key = "obill.playstore.storeFile",
+    project = project,
+    localProps = localPropsForSigning,
+    envKey = "OBILL_PLAYSTORE_STORE_FILE",
+)
+val playstoreStorePassword = resolveProp(
+    key = "obill.playstore.storePassword",
+    project = project,
+    localProps = localPropsForSigning,
+    envKey = "OBILL_PLAYSTORE_STORE_PASSWORD",
+)
+val playstoreKeyAlias = resolveProp(
+    key = "obill.playstore.keyAlias",
+    project = project,
+    localProps = localPropsForSigning,
+    envKey = "OBILL_PLAYSTORE_KEY_ALIAS",
+)
+val playstoreKeyPassword = resolveProp(
+    key = "obill.playstore.keyPassword",
+    project = project,
+    localProps = localPropsForSigning,
+    envKey = "OBILL_PLAYSTORE_KEY_PASSWORD",
+)
+val hasPlaystoreSigning =
+    playstoreStoreFile.isNotBlank() &&
+        playstoreStorePassword.isNotBlank() &&
+        playstoreKeyAlias.isNotBlank() &&
+        playstoreKeyPassword.isNotBlank()
+
 android {
     namespace = "com.obill.app"
     compileSdk = 35
@@ -48,6 +99,21 @@ android {
         buildConfigField("String", "UPDATE_CHECK_TOKEN", "\"$updateCheckToken\"")
     }
 
+    signingConfigs {
+        if (hasPlaystoreSigning) {
+            create("playstore") {
+                storeFile = project.rootProject.file(playstoreStoreFile)
+                storePassword = playstoreStorePassword
+                keyAlias = playstoreKeyAlias
+                keyPassword = playstoreKeyPassword
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -56,6 +122,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        create("playstore") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            isMinifyEnabled = false
+            if (hasPlaystoreSigning) {
+                signingConfig = signingConfigs.getByName("playstore")
+            }
+            matchingFallbacks += listOf("release")
         }
     }
     compileOptions {
@@ -158,5 +233,32 @@ tasks.register("publishReleaseApkToRepo") {
 
         println("Release APK dipublish ke: ${targetApk.absolutePath}")
         println("Versi: $versionText")
+    }
+}
+
+tasks.matching { it.name in setOf("bundlePlaystore", "assemblePlaystore") }.configureEach {
+    doFirst {
+        val missing = mutableListOf<String>()
+        if (playstoreStoreFile.isBlank()) missing += "obill.playstore.storeFile"
+        if (playstoreStorePassword.isBlank()) missing += "obill.playstore.storePassword"
+        if (playstoreKeyAlias.isBlank()) missing += "obill.playstore.keyAlias"
+        if (playstoreKeyPassword.isBlank()) missing += "obill.playstore.keyPassword"
+        if (missing.isNotEmpty()) {
+            error(
+                "Konfigurasi signing Play Store belum lengkap. Isi properti: " +
+                    missing.joinToString(", ") +
+                    ". Lihat file PLAYSTORE_RELEASE_GUIDE.md",
+            )
+        }
+    }
+}
+
+tasks.register("bundlePlaystoreRelease") {
+    group = "distribution"
+    description = "Build App Bundle (.aab) untuk upload Play Store"
+    dependsOn("bundlePlaystore")
+    doLast {
+        val out = layout.buildDirectory.dir("outputs/bundle/playstore").get().asFile
+        println("App Bundle Play Store tersedia di: ${out.absolutePath}")
     }
 }

@@ -9,6 +9,7 @@ import androidx.core.content.FileProvider
 import com.obill.app.data.remote.DashboardData
 import com.obill.app.data.remote.ProfileData
 import com.obill.app.BuildConfig
+import com.obill.app.data.remote.isPdfContent
 import com.obill.app.data.repository.AppUpdateRepository
 import com.obill.app.data.repository.SellerRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -105,7 +105,7 @@ class DashboardViewModel(
 
             sellerRepository.receiptPdfToFile(saleId, file).fold(
                 onSuccess = { f ->
-                    if (!isProbablyPdf(f)) {
+                    if (!f.isPdfContent()) {
                         _state.update {
                             it.copy(
                                 receiptLoading = false,
@@ -139,22 +139,6 @@ class DashboardViewModel(
 
     fun setReceiptError(message: String) {
         _state.update { it.copy(receiptError = message, receiptLoading = false) }
-    }
-
-    private fun isProbablyPdf(file: File): Boolean {
-        if (!file.exists() || file.length() < 5L) return false
-        return runCatching {
-            FileInputStream(file).use { input ->
-                val header = ByteArray(5)
-                val read = input.read(header)
-                read == 5 &&
-                    header[0] == '%'.code.toByte() &&
-                    header[1] == 'P'.code.toByte() &&
-                    header[2] == 'D'.code.toByte() &&
-                    header[3] == 'F'.code.toByte() &&
-                    header[4] == '-'.code.toByte()
-            }
-        }.getOrDefault(false)
     }
 
     companion object {

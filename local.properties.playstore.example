@@ -1,0 +1,14 @@
+## Salin isi file ini ke local.properties (jangan di-commit)
+## Lalu isi nilainya sesuai upload keystore Play Store.
+
+# Path absolut ke file keystore upload
+obill.playstore.storeFile=/ABSOLUTE/PATH/obill-upload.jks
+
+# Password keystore
+obill.playstore.storePassword=CHANGE_ME
+
+# Alias key di dalam keystore
+obill.playstore.keyAlias=obill_upload
+
+# Password key alias
+obill.playstore.keyPassword=CHANGE_ME

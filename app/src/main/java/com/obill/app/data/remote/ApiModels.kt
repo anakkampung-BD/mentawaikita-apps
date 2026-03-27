@@ -213,6 +213,33 @@ data class ProfileData(
     @SerialName("deviceId") val deviceId: String? = null,
     val hp: String? = null,
     val saldo: Double? = null,
+    @SerialName("date_created") val dateCreated: String? = null,
+)
+
+@Serializable
+data class SaldoTopupHistoryEnvelope(
+    val success: Boolean,
+    val data: SaldoTopupHistoryData? = null,
+    val message: String? = null,
+)
+
+@Serializable
+data class SaldoTopupHistoryData(
+    @SerialName("user_id") val userId: Int? = null,
+    val month: Int? = null,
+    val year: Int? = null,
+    @SerialName("total_amount") val totalAmount: Long? = null,
+    val items: List<SaldoTopupItemDto> = emptyList(),
+)
+
+@Serializable
+data class SaldoTopupItemDto(
+    val id: Int,
+    @SerialName("user_id") val userId: Int? = null,
+    val amount: Long? = null,
+    @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("created_by") val createdBy: Int? = null,
+    @SerialName("created_by_name") val createdByName: String? = null,
 )
 
 @Serializable

@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.obill.app.data.remote.ProfileData
+import com.obill.app.data.remote.SaldoTopupHistoryData
 import com.obill.app.data.repository.AuthRepository
 import com.obill.app.data.repository.SellerRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,6 +20,11 @@ data class ProfileUiState(
     val error: String? = null,
     val data: ProfileData? = null,
     val logoutLoading: Boolean = false,
+    val topupLoading: Boolean = true,
+    val topupError: String? = null,
+    val topupHistory: SaldoTopupHistoryData? = null,
+    /** Pesan dari envelope API (mis. tabel belum tersedia). */
+    val topupApiMessage: String? = null,
 )
 
 class ProfileViewModel(
@@ -29,15 +37,49 @@ class ProfileViewModel(
 
     fun load() {
         viewModelScope.launch {
-            _state.update { it.copy(loading = true, error = null) }
-            sellerRepository.profile().fold(
-                onSuccess = { d -> _state.update { it.copy(loading = false, data = d) } },
-                onFailure = { e ->
-                    _state.update {
-                        it.copy(loading = false, error = e.message ?: "Gagal")
-                    }
-                },
-            )
+            _state.update {
+                it.copy(
+                    loading = true,
+                    error = null,
+                    topupLoading = true,
+                    topupError = null,
+                    topupHistory = null,
+                    topupApiMessage = null,
+                )
+            }
+            coroutineScope {
+                val profileDef = async { sellerRepository.profile() }
+                val topupDef = async { sellerRepository.saldoTopupHistory() }
+                profileDef.await().fold(
+                    onSuccess = { d ->
+                        _state.update { it.copy(loading = false, data = d) }
+                    },
+                    onFailure = { e ->
+                        _state.update {
+                            it.copy(loading = false, error = e.message ?: "Gagal")
+                        }
+                    },
+                )
+                topupDef.await().fold(
+                    onSuccess = { env ->
+                        _state.update {
+                            it.copy(
+                                topupLoading = false,
+                                topupHistory = env.data,
+                                topupApiMessage = env.message,
+                            )
+                        }
+                    },
+                    onFailure = { e ->
+                        _state.update {
+                            it.copy(
+                                topupLoading = false,
+                                topupError = e.message ?: "Gagal memuat riwayat top-up saldo",
+                            )
+                        }
+                    },
+                )
+            }
         }
     }
 
