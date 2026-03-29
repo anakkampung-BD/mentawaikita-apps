@@ -67,8 +67,8 @@ android {
         applicationId = "com.obill.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 203
-        versionName = "2.0.3"
+        versionCode = 204
+        versionName = "2.0.4"
         val obillApiBase =
             (project.findProperty("obill.api.base.url") as String?)
                 ?.trim()
@@ -176,6 +176,8 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
@@ -228,7 +230,25 @@ tasks.register("publishReleaseApkToRepo") {
         apk.copyTo(targetApk, overwrite = true)
 
         val versionText = android.defaultConfig.versionName ?: "unknown"
-        updatesDir.resolve("latest-version.txt").writeText(versionText)
+        val notesFile = updatesDir.resolve("release-notes.txt")
+        val latestVersionPayload = if (notesFile.exists()) {
+            val raw = notesFile.readText()
+            val escaped = raw
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r\n", "\n")
+                .replace("\n", "\\n")
+            """
+            {
+              "latest_version": "$versionText",
+              "force_update": true,
+              "release_notes": "$escaped"
+            }
+            """.trimIndent()
+        } else {
+            versionText
+        }
+        updatesDir.resolve("latest-version.txt").writeText(latestVersionPayload)
         updatesDir.resolve("latest-apk-name.txt").writeText(targetApk.name)
 
         println("Release APK dipublish ke: ${targetApk.absolutePath}")

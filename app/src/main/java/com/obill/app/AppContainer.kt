@@ -5,6 +5,7 @@ import com.obill.app.data.local.TokenStore
 import com.obill.app.data.remote.NetworkModule
 import com.obill.app.data.repository.AppUpdateRepository
 import com.obill.app.data.repository.AuthRepository
+import com.obill.app.data.repository.QuotaRepository
 import com.obill.app.data.repository.RemoteAppUpdateRepository
 import com.obill.app.data.repository.SellerRepository
 
@@ -24,6 +25,11 @@ class AppContainer(context: Context) {
         networkModule.json,
         downloadReceiptPdfFromReceiptUrl = networkModule::downloadReceiptPdfFromReceiptUrl,
         downloadReceiptPdfBySaleId = networkModule::downloadReceiptPdfBySaleId,
+    )
+
+    val quotaRepository = QuotaRepository(
+        api = networkModule.quotaApi,
+        json = networkModule.json,
     )
     val authRepository = AuthRepository(
         api = networkModule.api,

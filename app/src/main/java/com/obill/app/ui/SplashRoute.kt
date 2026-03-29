@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -205,9 +207,25 @@ fun SplashRoute(
                 onDismissRequest = { /* wajib update */ },
                 title = { Text("Update Diperlukan") },
                 text = {
-                    Text(
-                        "Silakan update aplikasi ke versi terbaru ${info.latestVersion} untuk melanjutkan.",
-                    )
+                    val scroll = rememberScrollState()
+                    Column(
+                        modifier = Modifier
+                            .heightIn(max = 360.dp)
+                            .verticalScroll(scroll),
+                    ) {
+                        Text(
+                            "Versi terbaru: ${info.latestVersion}. Update wajib untuk melanjutkan.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        if (!info.releaseNotes.isNullOrBlank()) {
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = info.releaseNotes.trim(),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 },
                 confirmButton = {
                     TextButton(onClick = { openUpdate(info.updateUrl) }) {

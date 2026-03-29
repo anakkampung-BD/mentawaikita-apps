@@ -25,12 +25,9 @@ import com.obill.app.feature.history.ReceiptScreen
 import com.obill.app.feature.history.ReceiptViewModel
 import com.obill.app.feature.profile.ProfileScreen
 import com.obill.app.feature.profile.ProfileViewModel
-import com.obill.app.feature.report.ReportScreen
-import com.obill.app.feature.report.ReportViewModel
-import com.obill.app.feature.sale.SaleScreen
-import com.obill.app.feature.sale.SaleViewModel
 import com.obill.app.ui.MainShell
 import com.obill.app.ui.SplashRoute
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -74,17 +71,21 @@ fun ObillNavHost(
         }
         composable(Routes.Login) {
             val vm: LoginViewModel = viewModel(
-                factory = LoginViewModel.factory(container.authRepository),
+                factory = LoginViewModel.factory(
+                    container.authRepository,
+                    container.sellerRepository,
+                ),
             )
             val state by vm.state.collectAsState()
             LoginScreen(
                 state = state,
                 onLogin = { e, p -> vm.login(e, p) },
                 onLoginSuccess = {
-                    navController.navigate(Routes.Main) {
+                    navController.navigate(Routes.MainAfterLogin) {
                         popUpTo(Routes.Login) { inclusive = true }
                     }
                 },
+                onResetPostLogin = { vm.resetPostLogin() },
                 onAdjustText = { delta ->
                     scope.launch {
                         val cur = container.tokenStore.textScale.first()
@@ -94,25 +95,19 @@ fun ObillNavHost(
             )
         }
         composable(Routes.Main) {
-            MainShell(
+            MainShellDestination(
                 container = container,
-                onLogout = {
-                    scope.launch {
-                        container.authRepository.logout()
-                        navController.navigate(Routes.Login) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                },
-                onOpenReceipt = { id ->
-                    navController.navigate(Routes.receipt(id))
-                },
-                onAdjustText = { delta ->
-                    scope.launch {
-                        val cur = container.tokenStore.textScale.first()
-                        container.tokenStore.setTextScale(cur + delta)
-                    }
-                },
+                skipSessionSaldoCheck = false,
+                navController = navController,
+                scope = scope,
+            )
+        }
+        composable(Routes.MainAfterLogin) {
+            MainShellDestination(
+                container = container,
+                skipSessionSaldoCheck = true,
+                navController = navController,
+                scope = scope,
             )
         }
         composable(
@@ -144,6 +139,38 @@ object Routes {
     const val Splash = "splash"
     const val Login = "login"
     const val Main = "main"
+    /** Masuk dari login: saldo sudah dicek di layar login, jangan panggil ulang di MainShell. */
+    const val MainAfterLogin = "main_after_login"
     const val Receipt = "receipt/{id}"
     fun receipt(id: Int) = "receipt/$id"
+}
+
+@Composable
+private fun MainShellDestination(
+    container: AppContainer,
+    skipSessionSaldoCheck: Boolean,
+    navController: NavHostController,
+    scope: CoroutineScope,
+) {
+    MainShell(
+        container = container,
+        onLogout = {
+            scope.launch {
+                container.authRepository.logout()
+                navController.navigate(Routes.Login) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        },
+        onOpenReceipt = { id ->
+            navController.navigate(Routes.receipt(id))
+        },
+        onAdjustText = { delta ->
+            scope.launch {
+                val cur = container.tokenStore.textScale.first()
+                container.tokenStore.setTextScale(cur + delta)
+            }
+        },
+        skipSessionSaldoCheck = skipSessionSaldoCheck,
+    )
 }

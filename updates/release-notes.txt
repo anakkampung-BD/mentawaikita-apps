@@ -1,0 +1,8 @@
+Release 2.0.4
+• Saldo: pengecekan sebelum Jual (ambang 10k/30k) dengan dialog dan arahan.
+• Kuota: cek sisa kuota (API publik), modal, WhatsApp, hasil terpisah.
+• Laporan: modal tanggal, Download/Lihat/Tutup; bottom nav sinkron; tanpa Total Komisi di ringkasan.
+• Transaksi: wizard Jual dalam modal (paket → lokasi → WA → Generate → ringkasan → Proses).
+• Modal: tidak tertutup ketuk luar / back; struk punya Tutup.
+• Avatar DiceBear di dashboard & profil.
+• Dialog update wajib menampilkan catatan rilis dari server (field release_notes).

@@ -8,6 +8,8 @@ data class AppReleaseInfo(
      * lalu fallback ke `https://play.google.com/...`.
      */
     val updateUrl: String? = null,
+    /** Ringkasan perubahan versi (dari JSON `release_notes` / `releaseNotes` di endpoint update). */
+    val releaseNotes: String? = null,
 )
 
 interface AppUpdateRepository {

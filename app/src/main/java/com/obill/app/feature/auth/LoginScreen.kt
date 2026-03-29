@@ -15,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -27,7 +26,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,36 +42,33 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.obill.app.R
+import com.obill.app.ui.components.LowBalanceSweetAlertDialog
 import com.obill.app.ui.components.ObillGradientButton
 import com.obill.app.ui.components.TextScaleControls
 import com.obill.app.ui.theme.PageBackground
 import java.util.Calendar
-import kotlinx.coroutines.delay
 
-private enum class LoginAlertType { Success, Error }
+private enum class LoginAlertType { Error }
 
 @Composable
 fun LoginScreen(
     state: LoginUiState,
     onLogin: (String, String) -> Unit,
     onLoginSuccess: () -> Unit,
+    onResetPostLogin: () -> Unit,
     onAdjustText: (Float) -> Unit,
 ) {
     var alertType by remember { mutableStateOf<LoginAlertType?>(null) }
 
-    LaunchedEffect(state.success) {
-        if (state.success) alertType = LoginAlertType.Success
-    }
-    LaunchedEffect(state.error) {
-        if (state.error != null) alertType = LoginAlertType.Error
-    }
-
-    LaunchedEffect(alertType) {
-        if (alertType == LoginAlertType.Success) {
-            delay(5000)
-            alertType = null
+    LaunchedEffect(state.postLogin) {
+        if (state.postLogin is LoginPostLogin.NavigateToMain) {
+            onResetPostLogin()
             onLoginSuccess()
         }
+    }
+
+    LaunchedEffect(state.error) {
+        if (state.error != null) alertType = LoginAlertType.Error
     }
 
     var email by remember { mutableStateOf("") }
@@ -179,17 +174,18 @@ fun LoginScreen(
         )
     }
 
+    val lowBalance = state.postLogin as? LoginPostLogin.LowBalanceWarning
+    if (lowBalance != null) {
+        LowBalanceSweetAlertDialog(
+            saldoFormatted = lowBalance.saldoFormatted,
+            onConfirm = {
+                onResetPostLogin()
+                onLoginSuccess()
+            },
+        )
+    }
+
     when (alertType) {
-        LoginAlertType.Success -> {
-            AlertDialog(
-                onDismissRequest = { alertType = null },
-                icon = { Icon(Icons.Filled.CheckCircle, contentDescription = null) },
-                title = { Text("Login berhasil") },
-                // Tidak ada text tambahan dan tombol konfirmasi sesuai permintaan.
-                text = {},
-                confirmButton = {},
-            )
-        }
         LoginAlertType.Error -> {
             AlertDialog(
                 onDismissRequest = { alertType = null },

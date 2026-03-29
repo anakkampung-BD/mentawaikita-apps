@@ -12,8 +12,9 @@ import kotlinx.serialization.json.jsonPrimitive
  *
  * Format response yang didukung:
  * 1) JSON:
- *    { "latest_version":"2.0.2", "force_update":true, "update_url":"https://..." }
- *    atau key alternatif: version / latestVersion / forceUpdate / url
+ *    { "latest_version":"2.0.2", "force_update":true, "update_url":"https://...",
+ *      "release_notes":"• baris 1\n• baris 2" }
+ *    atau key alternatif: version / latestVersion / forceUpdate / url / releaseNotes
  * 2) Plain text:
  *    2.0.2
  */
@@ -47,6 +48,7 @@ class RemoteAppUpdateRepository(
                     latestVersion = latest,
                     forceUpdate = false,
                     updateUrl = parsed.updateUrl ?: fallbackRepoApkUrl(),
+                    releaseNotes = parsed.releaseNotes,
                 )
             }
 
@@ -58,6 +60,7 @@ class RemoteAppUpdateRepository(
                     latestVersion = latest,
                     forceUpdate = parsed.forceUpdate,
                     updateUrl = parsed.updateUrl ?: fallbackRepoApkUrl(),
+                    releaseNotes = parsed.releaseNotes,
                 )
             }
         }
@@ -67,6 +70,7 @@ class RemoteAppUpdateRepository(
         val latestVersion: String,
         val forceUpdate: Boolean,
         val updateUrl: String?,
+        val releaseNotes: String? = null,
     )
 
     private fun parseAsJson(body: String): Parsed? = runCatching {
@@ -84,13 +88,22 @@ class RemoteAppUpdateRepository(
             ?: root.string("updateUrl")
             ?: root.string("url")
 
-        Parsed(latestVersion = latest, forceUpdate = force, updateUrl = url)
+        val notes = root.string("release_notes")
+            ?: root.string("releaseNotes")
+            ?: root.string("changelog")
+
+        Parsed(
+            latestVersion = latest,
+            forceUpdate = force,
+            updateUrl = url,
+            releaseNotes = notes,
+        )
     }.getOrNull()
 
     private fun parseAsPlainText(body: String): Parsed? {
         val latest = body.lineSequence().firstOrNull()?.trim().orEmpty()
         if (latest.isBlank()) return null
-        return Parsed(latestVersion = latest, forceUpdate = true, updateUrl = null)
+        return Parsed(latestVersion = latest, forceUpdate = true, updateUrl = null, releaseNotes = null)
     }
 
     private fun JsonObject.string(key: String): String? =

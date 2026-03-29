@@ -60,6 +60,7 @@ import com.obill.app.data.remote.PenjualanItemDto
 import com.obill.app.BuildConfig
 import com.obill.app.ui.components.ObillCard
 import com.obill.app.ui.components.ObillGradientButton
+import com.obill.app.ui.components.RemoteUserAvatar
 import com.obill.app.ui.formatRupiahPlain
 import com.obill.app.ui.theme.BlueBrand
 import com.obill.app.ui.theme.OrangeBrand
@@ -141,6 +142,10 @@ fun DashboardScreen(
 
     val saldoText = state.sellerProfile?.saldo?.let { formatRupiahPlain(it) } ?: "-"
 
+    val avatarSeed = state.sellerProfile?.email?.takeIf { it.isNotBlank() }
+        ?: state.sellerProfile?.id?.toString()
+        ?: profileText
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -174,7 +179,12 @@ fun DashboardScreen(
                             modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            UserAvatar(displayName = profileText)
+                            RemoteUserAvatar(
+                                seed = avatarSeed,
+                                size = 56.dp,
+                                fallbackInitialSource = profileText,
+                                isOnDarkBackground = true,
+                            )
                             Spacer(Modifier.width(12.dp))
                             Column {
                                 Text(
@@ -453,29 +463,6 @@ private fun SyncStatusCard(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-    }
-}
-
-@Composable
-private fun UserAvatar(displayName: String) {
-    val initial = displayName
-        .trim()
-        .firstOrNull { !it.isWhitespace() }
-        ?.uppercaseChar()
-        ?.toString()
-        ?: "?"
-    Box(
-        modifier = Modifier
-            .size(56.dp)
-            .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.28f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            initial,
-            style = MaterialTheme.typography.headlineSmall,
-            color = Color.White,
-        )
     }
 }
 

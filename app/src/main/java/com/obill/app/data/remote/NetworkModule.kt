@@ -37,13 +37,30 @@ class NetworkModule(
         .writeTimeout(45, TimeUnit.SECONDS)
         .build()
 
+    /** Tanpa Bearer — dipakai endpoint publik seperti [QuotaApi]. */
+    private val publicClient: OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(SellerPathFallbackInterceptor())
+        .addInterceptor(createLoggingInterceptor())
+        .connectTimeout(45, TimeUnit.SECONDS)
+        .readTimeout(45, TimeUnit.SECONDS)
+        .writeTimeout(45, TimeUnit.SECONDS)
+        .build()
+
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(baseUrlNormalized)
         .client(client)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
 
+    private val retrofitPublic: Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrlNormalized)
+        .client(publicClient)
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+        .build()
+
     val api: SellerApi = retrofit.create(SellerApi::class.java)
+
+    val quotaApi: QuotaApi = retrofitPublic.create(QuotaApi::class.java)
 
     /**
      * Cek koneksi ke host API (tanpa Bearer). Dipakai splash sebelum login.
