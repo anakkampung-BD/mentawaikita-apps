@@ -1,8 +1,5 @@
-Apa yang baru di OBill 2.0.5
+Apa yang baru di OBill 2.0.6
 
-• Bisa tetap masuk (login) meski internet/server sedang bermasalah, asalkan pernah berhasil login sebelumnya.
-• Bisa jual voucher hotspot langsung ke router saat server offline.
-• Harga paket tersimpan di HP, jadi tetap bisa dipakai saat offline.
-• Di beranda, muncul info transaksi offline dan status sync.
-• Saat internet kembali, penjualan offline otomatis dikirim ke server (saldo & laporan ikut terbarui).
-• Tampilan aplikasi lebih rapi dan mudah dipakai.
+• Perbaikan sistem update aplikasi agar pemberitahuan versi baru tampil dengan benar.
+• Teks bantuan di bawah tombol masuk pada halaman login disembunyikan agar tampilan lebih bersih.
+• Tetap mendukung fitur offline (login, jual voucher, sync) dari versi sebelumnya.
