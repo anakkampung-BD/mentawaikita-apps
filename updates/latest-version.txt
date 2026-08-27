@@ -1,5 +1,6 @@
 {
-  "latest_version": "2.0.4",
+  "latest_version": "2.0.5",
   "force_update": true,
-  "release_notes": "Release 2.0.4\n• Saldo: pengecekan sebelum Jual (ambang 10k/30k) dengan dialog dan arahan.\n• Kuota: cek sisa kuota (API publik), modal, WhatsApp, hasil terpisah.\n• Laporan: modal tanggal, Download/Lihat/Tutup; bottom nav sinkron; tanpa Total Komisi di ringkasan.\n• Transaksi: wizard Jual dalam modal (paket → lokasi → WA → Generate → ringkasan → Proses).\n• Modal: tidak tertutup ketuk luar / back; struk punya Tutup.\n• Avatar DiceBear di dashboard & profil.\n• Dialog update wajib menampilkan catatan rilis dari server (field release_notes).\n"
+  "update_url": "https://github.com/anakkampung-BD/mentawaikita-apps/releases/download/v2.0.5/obill-2.0.5-release.apk",
+  "release_notes": "Apa yang baru di OBill 2.0.5\n\n• Bisa tetap masuk (login) meski internet/server sedang bermasalah, asalkan pernah berhasil login sebelumnya.\n• Bisa jual voucher hotspot langsung ke router saat server offline.\n• Harga paket tersimpan di HP, jadi tetap bisa dipakai saat offline.\n• Di beranda, muncul info transaksi offline dan status sync.\n• Saat internet kembali, penjualan offline otomatis dikirim ke server (saldo & laporan ikut terbarui).\n• Tampilan aplikasi lebih rapi dan mudah dipakai.\n"
 }
