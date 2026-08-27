@@ -1,6 +1,6 @@
 {
-  "latest_version": "2.0.6",
+  "latest_version": "2.0.5",
   "force_update": true,
-  "update_url": "https://github.com/anakkampung-BD/mentawaikita-apps/releases/download/v2.0.6/obill-2.0.6-release.apk",
-  "release_notes": "Apa yang baru di OBill 2.0.6\n\n• Perbaikan kecil dan peningkatan kestabilan.\n• Sistem update aplikasi diuji agar pemberitahuan versi baru tampil dengan benar.\n• Tetap mendukung fitur offline (login, jual voucher, sync) dari versi sebelumnya.\n"
+  "update_url": "https://github.com/anakkampung-BD/mentawaikita-apps/releases/download/v2.0.5/obill-2.0.5-release.apk",
+  "release_notes": "Apa yang baru di OBill 2.0.5\n\n• Bisa tetap masuk (login) meski internet/server sedang bermasalah, asalkan pernah berhasil login sebelumnya.\n• Bisa jual voucher hotspot langsung ke router saat server offline.\n• Harga paket tersimpan di HP, jadi tetap bisa dipakai saat offline.\n• Di beranda, muncul info transaksi offline dan status sync.\n• Saat internet kembali, penjualan offline otomatis dikirim ke server (saldo & laporan ikut terbarui).\n• Tampilan aplikasi lebih rapi dan mudah dipakai.\n"
 }
