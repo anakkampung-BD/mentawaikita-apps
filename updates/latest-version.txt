@@ -1,6 +1,5 @@
 {
-  "latest_version": "2.0.6",
+  "latest_version": "2.0.7",
   "force_update": true,
-  "update_url": "https://github.com/anakkampung-BD/mentawaikita-apps/releases/download/v2.0.6/obill-2.0.6-release.apk",
-  "release_notes": "Apa yang baru di OBill 2.0.6\n\n• Perbaikan sistem update aplikasi agar pemberitahuan versi baru tampil dengan benar.\n• Teks bantuan di bawah tombol masuk pada halaman login disembunyikan agar tampilan lebih bersih.\n• Tetap mendukung fitur offline (login, jual voucher, sync) dari versi sebelumnya.\n"
+  "release_notes": "Apa yang baru di OBill 2.0.7\n\n• Update aplikasi sekarang unduh otomatis di dalam app (ada progress bar), tidak dibuka ke halaman GitHub.\n• Tampilan popup update dan catatan rilis lebih rapi dan mudah dibaca.\n• Perbaikan kestabilan cek versi baru saat aplikasi dibuka.\n• Fitur offline dan penjualan tetap seperti versi sebelumnya.\n"
 }

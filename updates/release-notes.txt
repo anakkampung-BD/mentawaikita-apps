@@ -1,5 +1,6 @@
-Apa yang baru di OBill 2.0.6
+Apa yang baru di OBill 2.0.7
 
-• Perbaikan sistem update aplikasi agar pemberitahuan versi baru tampil dengan benar.
-• Teks bantuan di bawah tombol masuk pada halaman login disembunyikan agar tampilan lebih bersih.
-• Tetap mendukung fitur offline (login, jual voucher, sync) dari versi sebelumnya.
+• Update aplikasi sekarang unduh otomatis di dalam app (ada progress bar), tidak dibuka ke halaman GitHub.
+• Tampilan popup update dan catatan rilis lebih rapi dan mudah dibaca.
+• Perbaikan kestabilan cek versi baru saat aplikasi dibuka.
+• Fitur offline dan penjualan tetap seperti versi sebelumnya.
