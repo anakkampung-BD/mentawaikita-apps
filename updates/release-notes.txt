@@ -1,9 +1,9 @@
 Apa yang baru di OBill 2.0.8
 
+• Tombol PPOB di beranda — layanan pembayaran digital (pulsa, paket data, token listrik, tagihan BPJS/PDAM, dll.) segera hadir.
 • Transaksi lebih singkat — pilih paket, isi nomor WhatsApp, selesai. Tidak perlu pilih router lagi.
 • Router/lokasi otomatis mengikuti paket dan akun seller Anda.
 • Kode voucher dibuat otomatis oleh server.
 • Seller dengan lokasi "Semua lokasi" melihat nama router pada setiap paket.
 • Seller tanpa lokasi tidak bisa transaksi (hubungi admin).
 • Perbaikan pemberitahuan update aplikasi agar selalu muncul saat ada versi baru.
-• Tombol PPOB di beranda — fitur pembayaran digital (pulsa, token listrik, tagihan, dll.) sedang disiapkan.
