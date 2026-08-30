@@ -5,3 +5,4 @@ Apa yang baru di OBill 2.0.8
 • Kode voucher dibuat otomatis oleh server.
 • Seller dengan lokasi "Semua lokasi" melihat nama router pada setiap paket.
 • Seller tanpa lokasi tidak bisa transaksi (hubungi admin).
+• Perbaikan pemberitahuan update aplikasi agar selalu muncul saat ada versi baru.
