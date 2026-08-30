@@ -1,6 +1,6 @@
 {
-  "latest_version": "2.0.7",
+  "latest_version": "2.0.8",
   "force_update": true,
-  "update_url": "https://github.com/anakkampung-BD/mentawaikita-apps/releases/download/v2.0.7/obill-2.0.7-release.apk",
-  "release_notes": "Apa yang baru di OBill 2.0.7\n\n• Update aplikasi sekarang unduh otomatis di dalam app (ada progress bar), tidak dibuka ke halaman GitHub.\n• Tampilan popup update dan catatan rilis lebih rapi dan mudah dibaca.\n• Perbaikan kestabilan cek versi baru saat aplikasi dibuka.\n• Fitur offline dan penjualan tetap seperti versi sebelumnya.\n"
+  "update_url": "https://github.com/anakkampung-BD/mentawaikita-apps/releases/download/v2.0.8/obill-2.0.8-release.apk",
+  "release_notes": "Apa yang baru di OBill 2.0.8\n\n• Transaksi lebih singkat — pilih paket, isi nomor WhatsApp, selesai. Tidak perlu pilih router lagi.\n• Router/lokasi otomatis mengikuti paket dan akun seller Anda.\n• Kode voucher dibuat otomatis oleh server.\n• Seller dengan lokasi \"Semua lokasi\" melihat nama router pada setiap paket.\n• Seller tanpa lokasi tidak bisa transaksi (hubungi admin).\n"
 }

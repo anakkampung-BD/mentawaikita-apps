@@ -1,6 +1,7 @@
-Apa yang baru di OBill 2.0.7
+Apa yang baru di OBill 2.0.8
 
-• Update aplikasi sekarang unduh otomatis di dalam app (ada progress bar), tidak dibuka ke halaman GitHub.
-• Tampilan popup update dan catatan rilis lebih rapi dan mudah dibaca.
-• Perbaikan kestabilan cek versi baru saat aplikasi dibuka.
-• Fitur offline dan penjualan tetap seperti versi sebelumnya.
+• Transaksi lebih singkat — pilih paket, isi nomor WhatsApp, selesai. Tidak perlu pilih router lagi.
+• Router/lokasi otomatis mengikuti paket dan akun seller Anda.
+• Kode voucher dibuat otomatis oleh server.
+• Seller dengan lokasi "Semua lokasi" melihat nama router pada setiap paket.
+• Seller tanpa lokasi tidak bisa transaksi (hubungi admin).
